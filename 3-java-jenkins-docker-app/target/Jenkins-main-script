@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Hello') {
+            steps {
+            git branch: 'main', changelog: false, poll: false, url: 'https://github.com/Ayush9211A/jenkins-tutorial.git'            }
+        }
+        stage('Build'){
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'mvn clean package'
+                    
+                }
+            }
+        }
+         stage('Test'){
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'mvn test'
+                }
+            }
+        }
+         stage('Compile'){
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'mvn compile'
+                }
+            }
+        }
+         stage('Docker Image Build'){
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'docker build -t java-jenkins-docker:latest .'
+                  }
+            }
+        }
+        stage('Docker Run Image'){
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'docker run --rm java-jenkins-docker:latest .'
+              }
+            }
+        }
+          stage('Docker Image Tag'){
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'docker tag java-jenkins-docker:latest ayu9211/java-jenkins-docker:latest'
+                  }
+            }
+        }
+        stage('Docker Login'){
+          steps{
+             dir('3-java-jenkins-docker-app'){
+              sh 'docker login -u ayu9211 -p Ayush@9302243038'
+                  }
+              }
+          }
+            stage('Docker Image Push'){
+          steps{
+             dir('3-java-jenkins-docker-app'){
+              sh 'docker push ayu9211/java-jenkins-docker:latest'
+               }
+            }
+         }
+     }
+    }
